@@ -1,6 +1,6 @@
 <?php
 
-namespace MicroCMS\Domain;
+namespace AlaskaBlog\Domain;
 
 class Comment 
 {
@@ -28,7 +28,7 @@ class Comment
     /**
      * Associated article.
      *
-     * @var \MicroCMS\Domain\Article
+     * @var \AlaskaBlog\Domain\Article
      */
     private $article;
 

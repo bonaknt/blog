@@ -1,6 +1,6 @@
 <?php
 
-namespace MicroCMS\DAO;
+namespace AlaskaBlog\DAO;
 
 use Doctrine\DBAL\Connection;
 

@@ -1,8 +1,8 @@
 <?php
 
-namespace MicroCMS\DAO;
+namespace AlaskaBlog\DAO;
 
-use MicroCMS\Domain\Article;
+use AlaskaBlog\Domain\Article;
 
 class ArticleDAO extends DAO
 {
@@ -24,10 +24,11 @@ class ArticleDAO extends DAO
         return $articles;
     }
 
+
     /**
      * Returns an article matching the supplied id.
      *
-     * @param integer $id The article id.
+     * @param integer $id
      *
      * @return \MicroCMS\Domain\Article|throws an exception if no matching article is found
      */
@@ -40,14 +41,14 @@ class ArticleDAO extends DAO
         else
             throw new \Exception("No article matching id " . $id);
     }
+    
 
     /**
      * Creates an Article object based on a DB row.
      *
      * @param array $row The DB row containing Article data.
-     * @return \MicroCMS\Domain\Article
+     * @return \AlaskaBlog\Domain\Article
      */
-
     protected function buildDomainObject(array $row) {
         $article = new Article();
         $article->setId($row['art_id']);

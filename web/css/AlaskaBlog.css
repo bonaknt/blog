@@ -11,3 +11,8 @@ body {
 .articleTitle:hover, .articleTitle:focus {
     text-decoration: none;
 }
+
+.form-control-name{
+	width:200px; 
+	border-radius: 3px;
+}
