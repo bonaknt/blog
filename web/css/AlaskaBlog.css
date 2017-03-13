@@ -16,3 +16,20 @@ body {
 	width:200px; 
 	border-radius: 3px;
 }
+
+.adminTable {
+    margin-top: 20px;
+    margin-bottom: 20px;
+}
+
+.mceNoEditor, .commentaire_art{
+	width: 50%;
+}
+.auteur_com_art{
+	font-weight: bold;
+	font-size: 18px;
+}
+.commentaire_art{
+	border: 2px #F6F1F1 solid;
+	background-color: #F6F1F1;
+}

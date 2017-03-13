@@ -32,7 +32,21 @@ $app->register(new Silex\Provider\SecurityServiceProvider(), array(
             },
         ),
     ),
+    'security.role_hierarchy' => array(
+        'ROLE_ADMIN' => array('ROLE_USER'),
+    ),
+    'security.access_rules' => array(
+        array('^/admin', 'ROLE_ADMIN'),
+    ),
 ));
+
+$app['twig'] = $app->extend('twig', function(Twig_Environment $twig, $app) {
+    $twig->addExtension(new Twig_Extensions_Extension_Text());
+    return $twig;
+});
+$app->register(new Silex\Provider\ValidatorServiceProvider());
+
+
 
 // Register services
 $app['dao.article'] = function ($app) {

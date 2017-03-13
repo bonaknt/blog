@@ -5,16 +5,16 @@
 {% block content %}
 <p>
     <h2>{{ article.title }}</h2>
-    <p>{{ article.content }}</p>
+    <p>{{ article.content | raw  }}</p>
 
-    <h3>Comments</h3>
+    <h3>Commentaires</h3>
     {% for comment in comments %}
-        <strong>{{ comment.author }}</strong> dit : {{ comment.content }}<br>
+        <div class="commentaire_art"><div class="auteur_com_art">{{ comment.author }},</div>{{ comment.content|nl2br }}</div><br />
     {% else %}
-        No comments yet.
+        Pas encore de commentaires.
     {% endfor %}
 
-    <h3>Add a comment</h3>
+    <h3>Ajouter un commentaire</h3>
     {% if commentForm %}
         {{ form_start(commentForm) }}
         <div class="formText" class="form-group">
@@ -32,7 +32,7 @@
                     'id' : 'form_textarea',
                     'autocomplete' : 'off',
                     'rows': '4',
-                    'class': 'form-control',
+                    'class': 'mceNoEditor',
                     'placeholder': 'Entrer votre commentaire'
                 }}) }}
             </div>
