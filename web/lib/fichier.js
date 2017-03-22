@@ -1,6 +1,17 @@
-window.addEventListener("load", function () {
-    console.log("clic1");
+jQuery(document).ready(function($){
 
-    document.getElementById("comment_content").textContent = '';
+	$('.reply').click(function(e){
 
-});
+		e.preventDefault();
+
+		var $form = $('#form-comment');
+		var $this = $(this);
+		var parent_id = $this.data('id');
+		var $comment = $('#comment-' + parent_id);
+	
+		$('#comment_parent_id').val(parent_id);
+		$comment.after($form);
+
+	})
+})
+

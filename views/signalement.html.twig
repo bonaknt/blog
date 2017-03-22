@@ -1,0 +1,39 @@
+{% extends 'layout.html.twig' %}
+
+
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+<h2 class="text-center">{{ block('title') }}</h2>
+
+{% for flashMessage in app.session.flashbag.get('success') %}
+<div class="alert alert-success">
+    {{ flashMessage | raw }}
+</div>
+{% endfor %}
+<div class="well">
+{{ form_start(signalForm) }}
+<div class="signalement">
+        {{ form_row(signalForm.signalement) }}
+</div>
+
+{% if signalement > 0 %}
+
+    {{ questionSignalement }}
+
+{% endif %}
+
+{% if signalement < 1 %}
+
+    {{ questionRetirerSignalement }}
+
+{% endif %}
+        <div class="">
+        <input type="button" class="btn btn-primary" value="Annuler" onClick="document.location.href = document.referrer" />
+         <input type="submit" class="btn btn-primary" onClick="document.location.href = document.referrer" value="Confirmer" />
+        </div>
+    </div>
+{{ form_end(signalForm) }}
+</div>
+
+{% endblock %}
+

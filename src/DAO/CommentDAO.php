@@ -17,7 +17,9 @@ class CommentDAO extends DAO
         $commentData = array(
             'art_id' => $comment->getArticle()->getId(),
             'usr_name' => $comment->getAuthor(),
-            'com_content' => $comment->getContent()
+            'com_content' => $comment->getContent(),
+            'signalement' => $comment->getSignalement(),
+            'parent_id' => $comment->getParentId()
             );
 
         if ($comment->getId()) {
@@ -31,7 +33,7 @@ class CommentDAO extends DAO
             $comment->setId($id);
         }
     }
-
+    
     /**
      * @var \AlaskaBlog\DAO\ArticleDAO
      */
@@ -89,6 +91,7 @@ class CommentDAO extends DAO
     public function delete($id) {
         // Delete the comment
         $this->getDb()->delete('t_comment', array('com_id' => $id));
+        $this->getDb()->delete('t_comment', array('parent_id' => $id));
     }
         /**
      * Removes all comments for an article
@@ -111,7 +114,7 @@ class CommentDAO extends DAO
 
         // art_id is not selected by the SQL query
         // The article won't be retrieved during domain objet construction
-        $sql = "select com_id, com_content, usr_name from t_comment where art_id=? order by com_id";
+        $sql = "select com_id, com_content, usr_name, parent_id, signalement from t_comment where art_id=? order by com_id";
         $result = $this->getDb()->fetchAll($sql, array($articleId));
 
         // Convert query result to an array of domain objects
@@ -125,6 +128,33 @@ class CommentDAO extends DAO
         }
         return $comments;
     }
+
+    /**
+     * Permet de récupérer les commentaires avec les enfants
+     * @param $post_id
+     * @param bool $unset_children Doit-t-on supprimer les commentaire qui sont des enfants des résultats ?
+     * @return array
+     */
+    public function findAllWithChildren($articleId, $unset_children = true)
+    {
+        // On a besoin de 2 variables
+        // comments_by_id ne sera jamais modifié alors que comments
+        $comments_child = $comments = $this->findAllByArticle($articleId);
+        foreach ($comments_child as $comId => $comment) {
+            if ($comment->getParentId() != 0) {
+                $comments[$comment->getParentId()]->children[] = $comment;
+                $commentaire = new Comment();
+                $commentaire->setChildren($comments[$comment->getParentId()]->children);
+                if ($unset_children) {
+                    unset($comments_child[$comId]);
+                }
+            }
+        }
+        return $comments_child;
+    }
+
+
+
     public function findAll() {
         $sql = "select * from t_comment order by com_id desc";
         $result = $this->getDb()->fetchAll($sql);
@@ -148,6 +178,8 @@ class CommentDAO extends DAO
         $comment->setId($row['com_id']);
         $comment->setContent($row['com_content']);
         $comment->setAuthor($row['usr_name']);
+        $comment->setParentId($row['parent_id']);
+        $comment->setSignalement($row['signalement']);
         if (array_key_exists('art_id', $row)) {
             // Find and set the associated article
             $articleId = $row['art_id'];

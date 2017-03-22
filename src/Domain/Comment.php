@@ -2,8 +2,13 @@
 
 namespace AlaskaBlog\Domain;
 
-class Comment 
-{
+class Comment {
+
+
+    private $parent_id;
+
+
+
     /**
      * Comment id.
      *
@@ -31,6 +36,38 @@ class Comment
      * @var \AlaskaBlog\Domain\Article
      */
     private $article;
+
+    private $signalement;
+
+    public $children;
+
+    public function getSignalement() {
+        return $this->signalement;
+    }
+
+    public function setSignalement($signaler) {
+        $this->signalement = $signaler;
+        return $this;
+    }
+
+    public function getChildren() {
+        return $this->children;
+    }
+
+    public function setChildren($child) {
+        $this->children = $child;
+        return $this;
+    }
+
+    public function getParentId() {
+        return $this->parent_id;
+    }
+
+    public function setParentId($parent_id) {
+        $this->parent_id = $parent_id;
+        return $this;
+    }
+
 
     public function getId() {
         return $this->id;

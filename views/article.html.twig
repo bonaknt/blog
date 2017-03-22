@@ -8,16 +8,99 @@
     <p>{{ article.content | raw  }}</p>
 
     <h3>Commentaires</h3>
-    {% for comment in comments %}
-        <div class="commentaire_art"><div class="auteur_com_art">{{ comment.author }},</div>{{ comment.content|nl2br }}</div><br />
+    {#------------------------------- Niveau Parent -----------------------------#}
+    {% for comment in comments %}    
+
+        <div class="commentaire_art parent" id="comment-{{comment.id}}">
+
+        <div class="auteur_com_art">{{ comment.author }},</div>
+
+        {{ comment.content|nl2br }} <br />
+        
+        <div class="row" style="margin-left:0px; ">
+        
+        <a href="{{ path('comment_signalement', { 'id': comment.id }) }}?signalement=1">Signaler le commentaire</a>
+
+        <button class="btn btn-default col-lg-offset-6 reply" data-id="{{comment.id}}"">Répondre</button>
+
+        </div>
+        </div><br />
+        {#---------------------------- Niveau Un ----------------------------#}
+        {% if comment.children %}
+        {% for comment in comment.children %}
+            
+            <div class="commentaire_art enfant" id="comment-{{comment.id}}" style="margin-left: 30px">
+
+            <div class="auteur_com_art">
+
+            {{ comment.author }},</div>{{ comment.content|nl2br }} <br />
+
+            <div class="row" style="margin-left:0px; ">
+
+            <a href="{{ path('comment_signalement', { 'id': comment.id }) }}?signalement=1">Signaler le commentaire</a>
+
+            <button class="btn btn-default col-lg-offset-6 reply" data-id="{{comment.id}}">Répondre</button>
+
+            </div> 
+            </div><br />
+            {#---------------------------- Niveau Deux ----------------------------#}
+            {% if comment.children %}
+            {% for comment in comment.children %}
+
+                    <div class="commentaire_art enfant" id="comment-{{comment.id}}" style="margin-left: 60px">
+
+                    <div class="auteur_com_art">
+
+                    {{ comment.author }},</div>{{ comment.content|nl2br }} <br />
+
+                    <div class="row" style="margin-left:0px; ">
+
+                    <a href="{{ path('comment_signalement', { 'id': comment.id }) }}?signalement=1">Signaler le commentaire</a>
+
+                    <button class="btn btn-default col-lg-offset-6 reply" data-id="{{comment.id}}">Répondre</button>
+
+                    </div> 
+                    </div><br />
+                    {#---------------------------- Niveau Trois ----------------------------#}
+                    {% if comment.children %}
+                    {% for comment in comment.children %}
+
+                        <div class="commentaire_art enfant" id="comment-{{comment.id}}" style="margin-left: 90px">
+
+                        <div class="auteur_com_art">
+                        
+                        {{ comment.author }},</div>{{ comment.content|nl2br }} <br />
+
+                        <div class="row" style="margin-left:0px; ">
+
+                        <a href="{{ path('comment_signalement', { 'id': comment.id }) }}?signalement=1">Signaler le commentaire</a>
+
+                        </div> 
+                        </div><br />
+
+                    {% endfor %}
+                    {% endif %}
+
+
+            {% endfor %}
+            {% endif %}
+
+
+
+        {% endfor %}
+        {% endif %} 
     {% else %}
         Pas encore de commentaires.
     {% endfor %}
 
     <h3>Ajouter un commentaire</h3>
     {% if commentForm %}
+    <div id="form-comment">
         {{ form_start(commentForm) }}
         <div class="formText" class="form-group">
+
+
+
        <label>Pseudo : </label> {{ form_widget(commentForm.author, { 'attr':  {
                     'autocomplete' : 'off',
                     'class': 'form-control-name',
@@ -36,11 +119,21 @@
                     'placeholder': 'Entrer votre commentaire'
                 }}) }}
             </div>
+            {% for comment in comments %} 
             <div class="form-group">
-                <input type="submit" id="bouton" class="btn btn-primary" value="Publier commentaire" />
+                
+                {{ form_widget(commentForm.parent_id, { 'attr':  {
+                    'id' : 'parent_id',
+                    'value' : '0'
+                }}) }}
+            </div>
+            {% endfor %} 
+            <div class="form-group">
+                <input type="submit" id="bouton" class="btn btn-primary test" value="Publier commentaire" />
                 
             </div>
         {{ form_end(commentForm) }}
+    </div>
         {% for flashMessage in app.session.flashbag.get('success') %}
             
             <div class="alert alert-success">
@@ -53,6 +146,3 @@
         
 
 {% endblock %}
-
-
- 
