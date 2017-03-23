@@ -39,10 +39,13 @@ body {
 .pagination{
 	font-size: 1.4em;
 	color: black;
+	margin-left: 40%;
+
+}
+
+.page{
 	border-top: 1px solid black;
 	padding-top: 10px;
 	border-radius: 0;
 	width: 100%;
-
 }
-

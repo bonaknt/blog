@@ -14,7 +14,7 @@ use AlaskaBlog\Form\Type\SignalType;
 // Page d'accueil
 $app->get('/', function () use ($app) {
 
-    $articlesParPage = 4;
+    $articlesParPage = 5;
     $articleTotale = $app['dao.article']->paginer();
 
     $articleTotal = $articleTotale->rowCount();
@@ -39,19 +39,20 @@ $app->match('/article/{id}', function ($id, Request $request) use ($app) {
     $article = $app['dao.article']->find($id);
     $commentFormView = null;
     
-    // Un utilisateur est authentifié pleinement : il peut ajouter des commentaires
+    // ajout des commentaires
     $comment = new Comment();
     $comment->setArticle($article);
     $commentForm = $app['form.factory']->create(CommentType::class, $comment);
     $commentForm->handleRequest($request);
 
 
-    if ($commentForm->isSubmitted() && $commentForm->isValid()) {
+    if ($commentForm->isSubmitted() && $commentForm->isValid() && (!empty($comment->getContent())) && (!empty($comment->getAuthor()))) {
     	$commentFormView;
         $app['dao.comment']->save($comment);
         $app['session']->getFlashBag()->add('success', 'Votre commentaire a été ajouté avec succès.');
-
+        return $app->redirect('../article/'.$id);
     }
+
     $commentFormView = $commentForm->createView();
 
 
@@ -140,7 +141,7 @@ $app->match('/admin/comment/{id}/edit', function($id, Request $request) use ($ap
         'commentForm' => $commentForm->createView()));
 })->bind('admin_comment_edit');
 ////////////////////////////////////////////////////////////////////////////////////////////
-$app->match('/comment/{id}/signalement', function($id, Request $request) use ($app) {
+$app->match('/{id}/signalement', function($id, Request $request) use ($app) {
     $comment = $app['dao.comment']->find($id);
     $signalForm = $app['form.factory']->create(SignalType::class, $comment);
     $signalForm->handleRequest($request);
@@ -153,7 +154,7 @@ $app->match('/comment/{id}/signalement', function($id, Request $request) use ($a
     elseif ($signalForm->isSubmitted() && $_GET['signalement'] == 1) {
         $app['dao.comment']->save($comment);
         $app['session']->getFlashBag()->add('success', 'La confirmation a bien était effectué <a href="/blog/web/">cliquer ici</a> pour retourner à la page d\'accueil.');
-        //return $app->redirect($app['url_generator']->generate($_SERVER["HTTP_REFERER"]));
+        return $app->redirect('../article/'.$comment->getArticle()->getId());
 
     }
     return $app['twig']->render('signalement.html.twig', array(
