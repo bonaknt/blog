@@ -6,6 +6,30 @@ use AlaskaBlog\Domain\Article;
 
 class ArticleDAO extends DAO
 {
+
+
+    public function paginer(){
+        $result = $this->getDb()->query("SELECT art_id FROM t_article");
+
+        return $result;
+    }
+
+    public function pagination($depart, $articlesParPage){
+
+
+        $sql = "SELECT * FROM t_article ORDER BY art_id DESC LIMIT $depart, $articlesParPage";
+
+        $result = $this->getDb()->fetchAll($sql);
+
+        $articles = array();
+        foreach ($result as $row) {
+            $articleId = $row['art_id'];
+            $articles[$articleId] = $this->buildDomainObject($row);
+        }
+        return $articles;
+    }
+
+
     /**
      * Return a list of all articles, sorted by date (most recent first).
      *

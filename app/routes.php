@@ -13,8 +13,25 @@ use AlaskaBlog\Form\Type\SignalType;
 
 // Page d'accueil
 $app->get('/', function () use ($app) {
-    $articles = $app['dao.article']->findAll();
-    return $app['twig']->render('index.html.twig', array('articles' => $articles));
+
+    $articlesParPage = 4;
+    $articleTotale = $app['dao.article']->paginer();
+
+    $articleTotal = $articleTotale->rowCount();
+
+    $pagesTotales = ceil($articleTotal / $articlesParPage);
+
+    if(isset($_GET['page']) AND !empty($_GET['page']) AND $_GET['page'] > 0 AND $_GET['page'] <= $pagesTotales) {
+       $_GET['page'] = intval($_GET['page']);
+       $pageCourante = $_GET['page'];
+    } else {
+       $pageCourante = 1;
+    }
+    $depart = ($pageCourante-1)*$articlesParPage;
+
+
+    $articles = $app['dao.article']->pagination($depart, $articlesParPage);
+    return $app['twig']->render('index.html.twig', array('articles' => $articles, 'pagesTotales' => $pagesTotales, 'pageCourante' => $pageCourante));
 })->bind('home');
 
 // Déatails d'article avec les commentaires
@@ -206,7 +223,7 @@ $app->match('/admin/user/{id}/edit', function($id, Request $request) use ($app) 
 // Supprimer un utilisateur
 $app->get('/admin/user/{id}/delete', function($id, Request $request) use ($app) {
     // Supprimer tous les commentaires
-    $app['dao.comment']->deleteAllByUser($id);
+   // $app['dao.comment']->deleteAllByUser($id);
     // Supprimer l’utilisateur
     $app['dao.user']->delete($id);
     $app['session']->getFlashBag()->add('success', 'L’utilisateur a été correctement supprimé.');

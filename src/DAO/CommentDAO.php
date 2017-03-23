@@ -56,7 +56,7 @@ class CommentDAO extends DAO
 
     /**
      * Removes all comments for a user
-     *
+     * 
      * @param integer $userId The id of the user
      */
     public function deleteAllByUser($userId) {

@@ -9,5 +9,18 @@
     <p>{{ article.content | truncate(400) | raw }}</p>
 </article>
 {% endfor %}
+
+<div class="pagination">
+<span class="text-left">Page </span>
+{% for i in 1..pagesTotales %}
+	{% if i == pageCourante %}
+		<span> {{ i }} </span>
+	{% else %}
+		<a href="?page={{i}}"> {{i}} </a>
+	{% endif %}
+{% endfor %}
+
+</div>
+
 {% endblock %}
 
