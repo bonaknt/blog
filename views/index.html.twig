@@ -3,6 +3,10 @@
 {% block title %}Home{% endblock %}
 
 {% block content %}
+<div class="image">
+<img src="{{ asset('img/alaska.jpg') }}" height="200" width="100%" alt="alaska" />
+
+</div>
 {% for article in articles %}
 <article>
     <h2><a class="articleTitle" href="{{ path('article', { 'id': article.id }) }}">{{ article.title }}</a></h2>
