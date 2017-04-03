@@ -8,7 +8,7 @@ class ArticleDAO extends DAO
 {
 
 
-    public function paginer(){
+    public function nbArticles(){
         $result = $this->getDb()->query("SELECT art_id FROM t_article");
 
         return $result;
@@ -30,11 +30,6 @@ class ArticleDAO extends DAO
     }
 
 
-    /**
-     * Return a list of all articles, sorted by date (most recent first).
-     *
-     * @return array A list of all articles.
-     */
     public function findAll() {
         $sql = "select * from t_article order by art_id desc";
         $result = $this->getDb()->fetchAll($sql);
@@ -49,13 +44,7 @@ class ArticleDAO extends DAO
     }
 
 
-    /**
-     * Returns an article matching the supplied id.
-     *
-     * @param integer $id
-     *
-     * @return \MicroCMS\Domain\Article|throws an exception if no matching article is found
-     */
+
     public function find($id) {
         $sql = "select * from t_article where art_id=?";
         $row = $this->getDb()->fetchAssoc($sql, array($id));
@@ -66,11 +55,8 @@ class ArticleDAO extends DAO
             throw new \Exception("Aucun id d’article correspondant au n°" . $id);
     }
 
-        /**
-     * Saves an article into the database.
-     *
-     * @param \MicroCMS\Domain\Article $article The article to save
-     */
+
+
     public function save(Article $article) {
         $articleData = array(
             'art_title' => $article->getTitle(),
@@ -89,23 +75,14 @@ class ArticleDAO extends DAO
         }
     }
 
-    /**
-     * Removes an article from the database.
-     *
-     * @param integer $id The article id.
-     */
+
     public function delete($id) {
         // Delete the article
         $this->getDb()->delete('t_article', array('art_id' => $id));
     }
     
 
-    /**
-     * Creates an Article object based on a DB row.
-     *
-     * @param array $row The DB row containing Article data.
-     * @return \AlaskaBlog\Domain\Article
-     */
+
     protected function buildDomainObject(array $row) {
         $article = new Article();
         $article->setId($row['art_id']);

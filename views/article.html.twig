@@ -96,6 +96,12 @@
     <h3>Ajouter un commentaire</h3>
     {% if commentForm %}
     <div id="form-comment">
+        {% for flashMessage in app.session.flashbag.get('error') %}
+            
+            <div class="alert alert-danger" style="width:50%">
+                {{ flashMessage }}
+            </div>
+        {% endfor %}
         {{ form_start(commentForm) }}
         <div class="formText" class="form-group">
 
@@ -103,7 +109,7 @@
 
        <label>Pseudo : </label> {{ form_widget(commentForm.author, { 'attr':  {
                     'autocomplete' : 'off',
-                    'class': 'form-control-name',
+                    'class': 'form-control-name auteurCom',
                     'placeholder': 'Entrer votre pseudo',
                     'value' : ''
                     
@@ -129,7 +135,7 @@
             </div>
             {% endfor %} 
             <div class="form-group">
-                <input type="submit" id="bouton" class="btn btn-primary test" value="Publier commentaire" />
+                <input type="submit" id="bouton" class="btn btn-primary validCom" value="Publier commentaire" />
                 
             </div>
         {{ form_end(commentForm) }}

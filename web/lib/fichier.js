@@ -13,5 +13,6 @@ jQuery(document).ready(function($){
 		$comment.after($form);
 
 	})
+
 })
 

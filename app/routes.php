@@ -10,12 +10,11 @@ use AlaskaBlog\Form\Type\UserType;
 use AlaskaBlog\Form\Type\SignalType;
 
 
-
 // Page d'accueil
 $app->get('/', function () use ($app) {
 
     $articlesParPage = 5;
-    $articleTotale = $app['dao.article']->paginer();
+    $articleTotale = $app['dao.article']->nbArticles();
 
     $articleTotal = $articleTotale->rowCount();
 
@@ -31,6 +30,7 @@ $app->get('/', function () use ($app) {
 
 
     $articles = $app['dao.article']->pagination($depart, $articlesParPage);
+
     return $app['twig']->render('index.html.twig', array('articles' => $articles, 'pagesTotales' => $pagesTotales, 'pageCourante' => $pageCourante));
 })->bind('home');
 
@@ -53,11 +53,24 @@ $app->match('/article/{id}', function ($id, Request $request) use ($app) {
         return $app->redirect('../article/'.$id);
     }
 
+    if ($commentForm->isSubmitted() && (empty($comment->getContent())) && (empty($comment->getAuthor()))) {
+
+        $app['session']->getFlashBag()->add('error', 'Pour publier un commentaire, veuillez compléter tous les champs des commentaires !');
+    }
+
+    elseif ($commentForm->isSubmitted() && (empty($comment->getContent()))) {
+
+        $app['session']->getFlashBag()->add('error', 'Pour publier un commentaire, veuillez compléter tous les champs des commentaires !');
+    }
+
+    elseif ($commentForm->isSubmitted() && (empty($comment->getAuthor()))) {
+
+        $app['session']->getFlashBag()->add('error', 'Pour publier un commentaire, veuillez compléter tous les champs des commentaires !');
+    }
+
     $commentFormView = $commentForm->createView();
 
-
     $comments = $app['dao.comment']->findAllWithChildren($id);
-
 
     return $app['twig']->render('article.html.twig', array(
         'article' => $article, 
@@ -66,54 +79,65 @@ $app->match('/article/{id}', function ($id, Request $request) use ($app) {
 })->bind('article');
 
 
-
 // Login form
 $app->get('/login', function(Request $request) use ($app) {
+
     return $app['twig']->render('login.html.twig', array(
         'error'         => $app['security.last_error']($request),
         'last_username' => $app['session']->get('_security.last_username'),
+
     ));
 })->bind('login');
 
 // Page d'accueil d'administration
 $app->get('/admin', function() use ($app) {
+
     $articles = $app['dao.article']->findAll();
     $comments = $app['dao.comment']->findAll();
     $users = $app['dao.user']->findAll();
+
     return $app['twig']->render('admin.html.twig', array(
         'articles' => $articles,
         'comments' => $comments,
         'users' => $users));
-})->bind('admin');
 
+})->bind('admin');
 
 
 // Ajout nouvelle article
 $app->match('/admin/article/add', function(Request $request) use ($app) {
+
     $article = new Article();
     $articleForm = $app['form.factory']->create(ArticleType::class, $article);
     $articleForm->handleRequest($request);
+
     if ($articleForm->isSubmitted() && $articleForm->isValid()) {
         $app['dao.article']->save($article);
         $app['session']->getFlashBag()->add('success', 'L’article a été créé avec succès.');
     }
+
     return $app['twig']->render('article_form.html.twig', array(
         'title' => 'Nouvelle article',
         'articleForm' => $articleForm->createView()));
+
 })->bind('admin_article_add');
 
 // Modifier un article existant
 $app->match('/admin/article/{id}/edit', function($id, Request $request) use ($app) {
+
     $article = $app['dao.article']->find($id);
     $articleForm = $app['form.factory']->create(ArticleType::class, $article);
     $articleForm->handleRequest($request);
+
     if ($articleForm->isSubmitted() && $articleForm->isValid()) {
         $app['dao.article']->save($article);
         $app['session']->getFlashBag()->add('success', 'L’article a été mis à jour.');
     }
+
     return $app['twig']->render('article_form.html.twig', array(
         'title' => 'Modification de l\'article',
         'articleForm' => $articleForm->createView()));
+
 })->bind('admin_article_edit');
 
 // Supprimer un article
@@ -125,45 +149,59 @@ $app->get('/admin/article/{id}/delete', function($id, Request $request) use ($ap
     $app['session']->getFlashBag()->add('success', 'L’article a été supprimé avec succès.');
     // Redirect to admin home page
     return $app->redirect($app['url_generator']->generate('admin'));
+
 })->bind('admin_article_delete');
 
 // Modifier un commentaire existant
 $app->match('/admin/comment/{id}/edit', function($id, Request $request) use ($app) {
+
     $comment = $app['dao.comment']->find($id);
     $commentForm = $app['form.factory']->create(CommentType::class, $comment);
     $commentForm->handleRequest($request);
+
     if ($commentForm->isSubmitted() && $commentForm->isValid()) {
         $app['dao.comment']->save($comment);
         $app['session']->getFlashBag()->add('success', 'Le commentaire a été mis à jour.');
     }
+
     return $app['twig']->render('comment_form.html.twig', array(
         'title' => 'Edit comment',
         'commentForm' => $commentForm->createView()));
 })->bind('admin_comment_edit');
+
 ////////////////////////////////////////////////////////////////////////////////////////////
+
 $app->match('/{id}/signalement', function($id, Request $request) use ($app) {
+
     $comment = $app['dao.comment']->find($id);
     $signalForm = $app['form.factory']->create(SignalType::class, $comment);
     $signalForm->handleRequest($request);
     $questionSignalement = 'êtes-vous vraiment sûr de vouloir signaler le commentaire ?';
+
     if ($signalForm->isSubmitted() && $_GET['signalement'] == 0) {
         $app['dao.comment']->save($comment);
         $app['session']->getFlashBag()->add('success', 'La confirmation a bien était effectué.');
+
         return $app->redirect($app['url_generator']->generate('admin'));
     }
     elseif ($signalForm->isSubmitted() && $_GET['signalement'] == 1) {
+
         $app['dao.comment']->save($comment);
-        $app['session']->getFlashBag()->add('success', 'La confirmation a bien était effectué <a href="/blog/web/">cliquer ici</a> pour retourner à la page d\'accueil.');
+        $app['session']->getFlashBag()->add('success', 'La confirmation a bien était effectué pour retourner à la page d\'accueil.');
+
         return $app->redirect('../article/'.$comment->getArticle()->getId());
 
     }
+
     return $app['twig']->render('signalement.html.twig', array(
+
         'title' => 'Signalement commentaire',
         'comments' => $comment,
         'questionSignalement' => $questionSignalement,
         'questionRetirerSignalement' => 'êtes-vous vraiment sûr de bien vouloir retirer le signalement du commentaire ?',
         'signalement' => $_GET['signalement'],
         'signalForm' => $signalForm->createView()));
+
 })->bind('comment_signalement');
 
 
