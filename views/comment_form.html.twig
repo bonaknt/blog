@@ -11,6 +11,13 @@
 </div>
 {% endfor %}
 
+{% for flashMessage in app.session.flashbag.get('error') %}
+    
+    <div class="alert alert-danger" style="width:52%">
+        {{ flashMessage }}
+    </div>
+{% endfor %}
+
 <div class="well">
 {{ form_start(commentForm, { 'attr': {'class': 'form-horizontal'} }) }}
     <div class="form-group">

@@ -60,12 +60,12 @@ $app->match('/article/{id}', function ($id, Request $request) use ($app) {
 
     elseif ($commentForm->isSubmitted() && (empty($comment->getContent()))) {
 
-        $app['session']->getFlashBag()->add('error', 'Pour publier un commentaire, veuillez compléter tous les champs des commentaires !');
+        $app['session']->getFlashBag()->add('error', 'Impossible d\'envoyer le commentaire, car le contenu du commentaire est vide !');
     }
 
     elseif ($commentForm->isSubmitted() && (empty($comment->getAuthor()))) {
 
-        $app['session']->getFlashBag()->add('error', 'Pour publier un commentaire, veuillez compléter tous les champs des commentaires !');
+        $app['session']->getFlashBag()->add('error', 'Impossible d\'envoyer le commentaire, car vous n\'avez pas rempli le champ "Pseudo" !');
     }
 
     $commentFormView = $commentForm->createView();
@@ -111,12 +111,31 @@ $app->match('/admin/article/add', function(Request $request) use ($app) {
     $articleForm = $app['form.factory']->create(ArticleType::class, $article);
     $articleForm->handleRequest($request);
 
-    if ($articleForm->isSubmitted() && $articleForm->isValid()) {
+    if ($articleForm->isSubmitted() && $articleForm->isValid() && (!empty($article->getContent())) && (!empty($article->getTitle()))) {
+
         $app['dao.article']->save($article);
         $app['session']->getFlashBag()->add('success', 'L’article a été créé avec succès.');
+
+        return $app->redirect($app['url_generator']->generate('admin'));
+    }
+
+    if ($articleForm->isSubmitted() && (empty($article->getContent())) && (empty($article->getTitle()))) {
+
+        $app['session']->getFlashBag()->add('error', 'Pour publier un article, veuillez compléter tous les champs!');
+    }
+
+    elseif ($articleForm->isSubmitted() && (empty($article->getContent()))) {
+
+        $app['session']->getFlashBag()->add('error', 'Pour publier un article, veuillez compléter tous les champs!');
+    }
+
+    elseif ($articleForm->isSubmitted() && (empty($article->getTitle()))) {
+
+        $app['session']->getFlashBag()->add('error', 'Pour publier un article, veuillez compléter tous les champs!');
     }
 
     return $app['twig']->render('article_form.html.twig', array(
+
         'title' => 'Nouvelle article',
         'articleForm' => $articleForm->createView()));
 
@@ -129,12 +148,31 @@ $app->match('/admin/article/{id}/edit', function($id, Request $request) use ($ap
     $articleForm = $app['form.factory']->create(ArticleType::class, $article);
     $articleForm->handleRequest($request);
 
-    if ($articleForm->isSubmitted() && $articleForm->isValid()) {
+    if ($articleForm->isSubmitted() && $articleForm->isValid() && (!empty($article->getContent())) && (!empty($article->getTitle()))) {
+
         $app['dao.article']->save($article);
         $app['session']->getFlashBag()->add('success', 'L’article a été mis à jour.');
+
+        return $app->redirect($app['url_generator']->generate('admin'));
+    }
+
+    if ($articleForm->isSubmitted() && (empty($article->getContent())) && (empty($article->getTitle()))) {
+
+        $app['session']->getFlashBag()->add('error', 'Pour publier un article, veuillez compléter tous les champs!');
+    }
+
+    elseif ($articleForm->isSubmitted() && (empty($article->getContent()))) {
+
+        $app['session']->getFlashBag()->add('error', 'Pour publier un article, veuillez compléter tous les champs!');
+    }
+
+    elseif ($articleForm->isSubmitted() && (empty($article->getTitle()))) {
+
+        $app['session']->getFlashBag()->add('error', 'Pour publier un article, veuillez compléter tous les champs!');
     }
 
     return $app['twig']->render('article_form.html.twig', array(
+
         'title' => 'Modification de l\'article',
         'articleForm' => $articleForm->createView()));
 
@@ -142,11 +180,14 @@ $app->match('/admin/article/{id}/edit', function($id, Request $request) use ($ap
 
 // Supprimer un article
 $app->get('/admin/article/{id}/delete', function($id, Request $request) use ($app) {
+
     // Delete all associated comments
     $app['dao.comment']->deleteAllByArticle($id);
     // Delete the article
     $app['dao.article']->delete($id);
+
     $app['session']->getFlashBag()->add('success', 'L’article a été supprimé avec succès.');
+
     // Redirect to admin home page
     return $app->redirect($app['url_generator']->generate('admin'));
 
@@ -159,9 +200,25 @@ $app->match('/admin/comment/{id}/edit', function($id, Request $request) use ($ap
     $commentForm = $app['form.factory']->create(CommentType::class, $comment);
     $commentForm->handleRequest($request);
 
-    if ($commentForm->isSubmitted() && $commentForm->isValid()) {
+    if ($commentForm->isSubmitted() && $commentForm->isValid() && (!empty($comment->getContent())) && (!empty($comment->getAuthor()))) {
         $app['dao.comment']->save($comment);
         $app['session']->getFlashBag()->add('success', 'Le commentaire a été mis à jour.');
+        return $app->redirect($app['url_generator']->generate('admin'));
+    }
+
+    if ($commentForm->isSubmitted() && (empty($comment->getContent())) && (empty($comment->getAuthor()))) {
+
+        $app['session']->getFlashBag()->add('error', 'Pour publier un commentaire, veuillez compléter tous les champs des commentaires !');
+    }
+
+    elseif ($commentForm->isSubmitted() && (empty($comment->getContent()))) {
+
+        $app['session']->getFlashBag()->add('error', 'Impossible d\'envoyer le commentaire, car le contenu du commentaire est vide !');
+    }
+
+    elseif ($commentForm->isSubmitted() && (empty($comment->getAuthor()))) {
+
+        $app['session']->getFlashBag()->add('error', 'Impossible d\'envoyer le commentaire, car vous n\'avez pas rempli le champ "Pseudo" !');
     }
 
     return $app['twig']->render('comment_form.html.twig', array(
@@ -210,30 +267,60 @@ $app->match('/{id}/signalement', function($id, Request $request) use ($app) {
 
 // Supprimer un commentaire
 $app->get('/admin/comment/{id}/delete', function($id, Request $request) use ($app) {
+
     $app['dao.comment']->delete($id);
     $app['session']->getFlashBag()->add('success', 'Le commentaire a été supprimé avec succès.');
+
     // Redirection vers la page d'administration
     return $app->redirect($app['url_generator']->generate('admin'));
+
 })->bind('admin_comment_delete');
 
 // Ajout d'un utilisateur
 $app->match('/admin/user/add', function(Request $request) use ($app) {
+
     $user = new User();
     $userForm = $app['form.factory']->create(UserType::class, $user);
     $userForm->handleRequest($request);
-    if ($userForm->isSubmitted() && $userForm->isValid()) {
+
+    if ($userForm->isSubmitted() && $userForm->isValid() && (!empty($user->getUsername())) && (!empty($user->getPassword()))) {
+
         // générer une valeur aléatoire de salt
         $salt = substr(md5(time()), 0, 23);
         $user->setSalt($salt);
         $plainPassword = $user->getPassword();
+
         // trouver l’encodeur par défaut
         $encoder = $app['security.encoder.bcrypt'];
+
         // calculer le mot de passe 
         $password = $encoder->encodePassword($plainPassword, $user->getSalt());
         $user->setPassword($password); 
         $app['dao.user']->save($user);
         $app['session']->getFlashBag()->add('success', 'L’utilisateur a été correctement créé.');
+
+        return $app->redirect($app['url_generator']->generate('admin'));
     }
+
+
+    if ($userForm->isSubmitted() && (empty($user->getUsername())) && (empty($user->getPassword()))) {
+
+        $app['session']->getFlashBag()->add('error', 'veuillez remplir tous les champs ! ');
+    }
+
+    elseif ($userForm->isSubmitted() && (empty($user->getPassword()))) {
+
+        $app['session']->getFlashBag()->add('error', 'veuillez remplir tous les champs !');
+    }
+
+    elseif ($userForm->isSubmitted() && (empty($user->getUsername()))) {
+
+        $app['session']->getFlashBag()->add('error', 'veuillez remplir tous les champs !');
+    }
+
+
+
+
     return $app['twig']->render('user_form.html.twig', array(
         'title' => 'Nouvelle utilisateur',
         'userForm' => $userForm->createView()));
@@ -241,31 +328,64 @@ $app->match('/admin/user/add', function(Request $request) use ($app) {
 
 // Modifier un utilisateur existant
 $app->match('/admin/user/{id}/edit', function($id, Request $request) use ($app) {
+
     $user = $app['dao.user']->find($id);
     $userForm = $app['form.factory']->create(UserType::class, $user);
     $userForm->handleRequest($request);
-    if ($userForm->isSubmitted() && $userForm->isValid()) {
+
+    if ($userForm->isSubmitted() && $userForm->isValid() && (!empty($user->getUsername())) && (!empty($user->getPassword()))) {
+
         $plainPassword = $user->getPassword();
+
         // trouver l’encodeur pour l’utilisateur
+
         $encoder = $app['security.encoder_factory']->getEncoder($user);
+
         // calculer le mot de passe
+
         $password = $encoder->encodePassword($plainPassword, $user->getSalt());
         $user->setPassword($password); 
         $app['dao.user']->save($user);
         $app['session']->getFlashBag()->add('success', 'L’utilisateur a été correctement mis à jour.');
+
+        return $app->redirect($app['url_generator']->generate('admin'));
     }
+
+
+
+    if ($userForm->isSubmitted() && (empty($user->getUsername())) && (empty($user->getPassword()))) {
+
+        $app['session']->getFlashBag()->add('error', 'veuillez remplir tous les champs ! ');
+    }
+
+    elseif ($userForm->isSubmitted() && (empty($user->getPassword()))) {
+
+        $app['session']->getFlashBag()->add('error', 'veuillez remplir tous les champs !');
+    }
+
+    elseif ($userForm->isSubmitted() && (empty($user->getUsername()))) {
+
+        $app['session']->getFlashBag()->add('error', 'veuillez remplir tous les champs !');
+    }
+
     return $app['twig']->render('user_form.html.twig', array(
+        
         'title' => 'Modification de l\'utilisateur',
         'userForm' => $userForm->createView()));
+
 })->bind('admin_user_edit');
 
 // Supprimer un utilisateur
 $app->get('/admin/user/{id}/delete', function($id, Request $request) use ($app) {
+
     // Supprimer tous les commentaires
-   // $app['dao.comment']->deleteAllByUser($id);
+    // $app['dao.comment']->deleteAllByUser($id);
     // Supprimer l’utilisateur
+
     $app['dao.user']->delete($id);
+
     $app['session']->getFlashBag()->add('success', 'L’utilisateur a été correctement supprimé.');
     // Rediriger vers la page d’accueil d’admin
     return $app->redirect($app['url_generator']->generate('admin'));
+
 })->bind('admin_user_delete');
