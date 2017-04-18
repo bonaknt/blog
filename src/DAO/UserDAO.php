@@ -14,7 +14,7 @@ class UserDAO extends DAO implements UserProviderInterface
     /**
      * Saves a user into the database.
      *
-     * @param \MicroCMS\Domain\User $user The user to save
+     * @param \AlaskaBlog\Domain\User $user The user to save
      */
     public function save(User $user) {
         $userData = array(

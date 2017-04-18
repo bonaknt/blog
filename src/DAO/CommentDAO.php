@@ -69,7 +69,7 @@ class CommentDAO extends DAO
      *
      * @param integer $id The comment id
      *
-     * @return \MicroCMS\Domain\Comment|throws an exception if no matching comment is found
+     * @return \AlaskaBlog\Domain\Comment|throws an exception if no matching comment is found
      */
     public function find($id) {
         $sql = "select * from t_comment where com_id=?";
