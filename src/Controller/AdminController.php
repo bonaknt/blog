@@ -63,7 +63,7 @@ class AdminController {
 
         return $app['twig']->render('article_form.html.twig', array(
 
-            'title' => 'Nouvelle article',
+            'title' => 'Nouvel article',
             'articleForm' => $articleForm->createView()));
     }
 
@@ -261,7 +261,7 @@ class AdminController {
 
 
         return $app['twig']->render('user_form.html.twig', array(
-            'title' => 'Nouvelle utilisateur',
+            'title' => 'Nouvel utilisateur',
             'userForm' => $userForm->createView()));
     }
 
